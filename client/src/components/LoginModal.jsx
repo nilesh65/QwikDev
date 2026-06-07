@@ -1,6 +1,23 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../firebase";
+import axios from 'axios'
+import { serverUrl } from "../App";
 function LoginModal({ open, onClose }) {
+    const handleGoogleAuth = async()=>{
+        try {
+            const result = await signInWithPopup(auth,provider)
+            const {data} = await axios.post(`${serverUrl}/api/auth/google`,{
+                name: result.user.displayName,
+                email: result.user.email,
+                avatar: result.user.photoURL,
+            },{withCredentials:true})
+            
+        } catch (error) {
+            console.log(error)
+        }
+    }
   return (
     <AnimatePresence>
       {open && (
@@ -60,6 +77,7 @@ border border-white/10 text-xs text-zinc-300"
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
+                  onClick={handleGoogleAuth}
                   className="group relative w-full h-13 rounded-xl bg-white text-black font-semibold shadow-xl overflow-hidden"
                 >
                   <div className="relative flex items-center justify-center gap-3">
